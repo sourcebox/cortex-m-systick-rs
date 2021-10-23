@@ -1,0 +1,14 @@
+[package]
+authors = ["Oliver Rockstedt <info@sourcebox.de>"]
+categories = ["embedded", "hardware-support", "no-std", "date-and-time"]
+description = "Utility functions for the ARM Cortex-M SysTick timer."
+edition = "2021"
+keywords = ["arm", "cortex-m", "peripheral"]
+license = "MIT"
+name = "cortex-m-systick"
+repository = "https://github.com/sourcebox/cortex-m-systick-rs"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
