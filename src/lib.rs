@@ -22,15 +22,15 @@ static CLOCK_FREQ: AtomicU32 = AtomicU32::new(0);
 /// SysTick frequency in Hz.
 static TICK_FREQ: AtomicU32 = AtomicU32::new(0);
 
-/// Initializes the SysTick counter from frequency values.
+/// Initializes the SysTick counter with a frequency.
 ///
-/// Sets the reload value according to the frequencies and enables the interrupt.
+/// Sets the reload value according to the desired frequency and enables the interrupt.
 /// Does not start the counter, use `start()` to accomplish.
 ///
 /// - `syst` is the peripheral and will be consumed
 /// - `clock_freq`: System core clock frequency in Hz
 /// - `tick_freq`: SysTick frequency in Hz
-pub fn init_freq(mut syst: cortex_m::peripheral::SYST, clock_freq: u32, tick_freq: u32) {
+pub fn init_with_frequency(mut syst: cortex_m::peripheral::SYST, clock_freq: u32, tick_freq: u32) {
     let reload = (clock_freq / tick_freq) - 1;
 
     syst.set_clock_source(cortex_m::peripheral::syst::SystClkSource::Core);

@@ -12,7 +12,7 @@ use cortex_m_systick as systick;
 
 // Configure SysTick for 1000Hz interval on 80MHz core clock
 let cp = cortex_m::Peripherals::take().unwrap();
-systick::init_freq(cp.SYST, 80000000, 1000);
+systick::init_with_frequency(cp.SYST, 80000000, 1000);
 systick::start();
 
 // Get number of milliseconds from start
