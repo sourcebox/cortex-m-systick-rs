@@ -33,6 +33,24 @@ systick::set_callback(|tick_count| {
 });
 ```
 
+## Features
+
+### no_handler
+
+By default, this crate defines a handler for the SysTick interrupt. This will cause a collision in cases where such a handler already exists. To overcome this, use the `no_handler` feature and call the `interrupt()` function from inside the existing handler:
+
+```rust
+use cortex_m_rt::exception;
+use cortex_m_systick as systick;
+
+#[exception]
+#[allow(non_snake_case)]
+fn SysTick() {
+    systick::interrupt();
+}
+
+```
+
 ## License
 
 Published under the MIT license.

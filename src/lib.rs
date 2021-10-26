@@ -8,6 +8,8 @@ use core::cell::Cell;
 use core::sync::atomic::{AtomicU32, Ordering};
 
 use cortex_m::interrupt::{self, Mutex};
+
+#[cfg(not(feature = "no_handler"))]
 use cortex_m_rt::exception;
 
 /// SysTick peripheral.
@@ -138,7 +140,7 @@ pub fn micros() -> u64 {
     clock_cycles() / sysclock_mhz as u64
 }
 
-/// Set an interrupt callback function
+/// Set an interrupt callback function.
 ///
 /// The provided callback function is called on each SysTick interrupt
 /// after updating the tick count and passed its value as argument
@@ -148,16 +150,24 @@ pub fn set_callback(callback: fn(u32)) {
     });
 }
 
-/// Clear the interrupt callback function
+/// Clear the interrupt callback function.
 pub fn clear_callback() {
     interrupt::free(|cs| {
         CALLBACK_FN.borrow(cs).set(None);
     });
 }
 
-#[exception]
-#[allow(non_snake_case)]
-fn SysTick() {
+/// External interrupt call.
+///
+/// This function must be called from the external SysTick handler
+/// when the `no_handler` feature is enabled.
+#[cfg(feature = "no_handler")]
+pub fn interrupt() {
+    irq();
+}
+
+/// Called on SysTick interrupt, either internally or via the `interrupt()` function.
+fn irq() {
     interrupt::free(|cs| {
         // Increase the counter
         SYSTICK_COUNTER.fetch_add(1, Ordering::Relaxed);
@@ -174,4 +184,12 @@ fn SysTick() {
         }
         CALLBACK_FN.borrow(cs).set(callback);
     });
+}
+
+/// SysTick interrupt handler
+#[cfg(not(feature = "no_handler"))]
+#[exception]
+#[allow(non_snake_case)]
+fn SysTick() {
+    irq();
 }
