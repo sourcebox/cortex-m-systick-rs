@@ -26,7 +26,6 @@ static TICK_FREQ: AtomicU32 = AtomicU32::new(0);
 ///
 /// Sets the reload value according to the desired frequency and enables the interrupt.
 /// Does not start the counter, use `start()` to accomplish.
-///
 /// - `syst` is the peripheral and will be consumed
 /// - `clock_freq`: System core clock frequency in Hz
 /// - `tick_freq`: SysTick frequency in Hz
@@ -100,7 +99,8 @@ pub fn clock_cycles() -> u64 {
 
         if syst.has_wrapped() {
             // This catches the case when the counter has reached 0 after
-            // the last interrupt but before calling this function.
+            // the last interrupt but before reading the value in the
+            // statement above.
             ticks += 1;
         }
 
