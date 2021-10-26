@@ -22,6 +22,9 @@ static CLOCK_FREQ: AtomicU32 = AtomicU32::new(0);
 /// SysTick frequency in Hz.
 static TICK_FREQ: AtomicU32 = AtomicU32::new(0);
 
+/// Optional callback function triggered within SysTick interrupt
+static CALLBACK_FN: Mutex<Cell<Option<fn(u32)>>> = Mutex::new(Cell::new(None));
+
 /// Initializes the SysTick counter with a frequency.
 ///
 /// Sets the reload value according to the desired frequency and enables the interrupt.
@@ -135,16 +138,40 @@ pub fn micros() -> u64 {
     clock_cycles() / sysclock_mhz as u64
 }
 
+/// Set an interrupt callback function
+///
+/// The provided callback function is called on each SysTick interrupt
+/// after updating the tick count and passed its value as argument
+pub fn set_callback(callback: fn(u32)) {
+    interrupt::free(|cs| {
+        CALLBACK_FN.borrow(cs).set(Some(callback));
+    });
+}
+
+/// Clear the interrupt callback function
+pub fn clear_callback() {
+    interrupt::free(|cs| {
+        CALLBACK_FN.borrow(cs).set(None);
+    });
+}
+
 #[exception]
 #[allow(non_snake_case)]
 fn SysTick() {
-    // Increase the counter
-    SYSTICK_COUNTER.fetch_add(1, Ordering::Relaxed);
-
-    // Read the status register to ensure COUNTFLAG is reset to 0
     interrupt::free(|cs| {
+        // Increase the counter
+        SYSTICK_COUNTER.fetch_add(1, Ordering::Relaxed);
+
+        // Read the status register to ensure COUNTFLAG is reset to 0
         let mut systick = SYSTICK.borrow(cs).replace(None);
         let _ = systick.as_mut().unwrap().has_wrapped();
         SYSTICK.borrow(cs).set(systick);
+
+        // Execute optional callback function
+        let callback = CALLBACK_FN.borrow(cs).replace(None);
+        if let Some(callback) = callback {
+            callback(SYSTICK_COUNTER.load(Ordering::Relaxed));
+        }
+        CALLBACK_FN.borrow(cs).set(callback);
     });
 }

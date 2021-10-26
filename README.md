@@ -26,6 +26,11 @@ systick::delay::delay_ms(20);
 
 // Delay 50 microseconds
 systick::delay::delay_us(50);
+
+// Set a callback function for the interrupt
+systick::set_callback(|tick_count| {
+    // Do something here on each tick
+});
 ```
 
 ## License
