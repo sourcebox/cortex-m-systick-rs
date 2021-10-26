@@ -30,17 +30,29 @@ static TICK_FREQ: AtomicU32 = AtomicU32::new(0);
 /// - `clock_freq`: System core clock frequency in Hz
 /// - `tick_freq`: SysTick frequency in Hz
 pub fn init_with_frequency(mut syst: cortex_m::peripheral::SYST, clock_freq: u32, tick_freq: u32) {
-    let reload = (clock_freq / tick_freq) - 1;
+    // Make sure interrupt does not run while doing the init
+    syst.disable_interrupt();
 
+    // Core clock must be used as source, otherwise calculations will be wrong
     syst.set_clock_source(cortex_m::peripheral::syst::SystClkSource::Core);
+
+    // The tick counter should start with 0 after init
+    SYSTICK_COUNTER.store(0, Ordering::Relaxed);
+
+    // These values need to be stored for further calculations
+    CLOCK_FREQ.store(clock_freq, Ordering::Relaxed);
+    TICK_FREQ.store(tick_freq, Ordering::Relaxed);
+
+    // Setup the timer registers with the required values
+    let reload = (clock_freq / tick_freq) - 1;
     syst.set_reload(reload);
     syst.clear_current();
+
+    // Finally start the interrupt and let everything run
     syst.enable_interrupt();
 
     interrupt::free(|cs| {
         SYSTICK.borrow(cs).replace(Some(syst));
-        CLOCK_FREQ.store(clock_freq, Ordering::Relaxed);
-        TICK_FREQ.store(tick_freq, Ordering::Relaxed);
     });
 }
 
@@ -79,6 +91,7 @@ pub fn reset() {
         let mut systick = SYSTICK.borrow(cs).replace(None);
         systick.as_mut().unwrap().clear_current();
         SYSTICK.borrow(cs).set(systick);
+        SYSTICK_COUNTER.store(0, Ordering::Relaxed);
     })
 }
 
