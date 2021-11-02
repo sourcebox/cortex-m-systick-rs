@@ -7,7 +7,7 @@ use crate::{micros, millis};
 /// Sleep for a number of milliseconds.
 pub fn delay_ms(value: u32) {
     let start = millis();
-    while millis() < start + value {}
+    while millis() < start + value as u64 {}
 }
 
 /// Sleep for a number of microseconds.

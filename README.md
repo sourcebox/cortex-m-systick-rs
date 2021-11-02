@@ -2,7 +2,7 @@
 
 This Rust crate initializes the Cortex-M SysTick timer with a specific tick frequency and provides basic functions for time-based calculations.
 
-It sets up the SysTick interrupt to increase an 32-bit tick counter. Consequently, a typical 1000Hz tick frequency will result in a period of nearly 50 days before overflowing.
+It sets up the SysTick interrupt to increase an 64-bit tick counter.
 
 ## Usage Examples
 
