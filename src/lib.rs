@@ -81,15 +81,15 @@ pub fn stop() {
 
 /// Resets the counter.
 pub fn reset() {
-    unsafe {
+    interrupt::free(|_| unsafe {
         SYSTICK.as_mut().unwrap().clear_current();
         SYSTICK_COUNTER = 0
-    }
+    });
 }
 
 /// Returns the tick count.
 pub fn ticks() -> u64 {
-    unsafe { SYSTICK_COUNTER }
+    interrupt::free(|_| unsafe { SYSTICK_COUNTER })
 }
 
 /// Returns the number of core clock cycles.
