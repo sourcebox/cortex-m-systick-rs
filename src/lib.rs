@@ -6,7 +6,7 @@ pub mod delay;
 
 use cortex_m::interrupt;
 
-#[cfg(not(feature = "no_handler"))]
+#[cfg(feature = "irq_handler")]
 use cortex_m_rt::exception;
 
 /// SysTick peripheral.
@@ -141,8 +141,8 @@ pub fn clear_callback() {
 /// External interrupt call.
 ///
 /// This function must be called from the external SysTick handler
-/// when the `no_handler` feature is enabled.
-#[cfg(feature = "no_handler")]
+/// when the `irq_handler` feature is disabled.
+#[cfg(not(feature = "irq_handler"))]
 pub fn interrupt() {
     irq();
 }
@@ -164,7 +164,7 @@ fn irq() {
 }
 
 /// SysTick interrupt handler
-#[cfg(not(feature = "no_handler"))]
+#[cfg(feature = "irq_handler")]
 #[exception]
 #[allow(non_snake_case)]
 fn SysTick() {

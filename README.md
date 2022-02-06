@@ -35,9 +35,9 @@ systick::set_callback(|tick_count| {
 
 ## Features
 
-### no_handler
+### irq_handler
 
-By default, this crate defines a handler for the SysTick interrupt. This will cause a collision in cases where such a handler already exists. To overcome this, use the `no_handler` feature and call the `interrupt()` function from inside the existing handler:
+This feature is enabled by default and defines a handler for the SysTick interrupt. Therefore, a collision will occur in cases when such a handler already exists somewhere else. To overcome this, disable the default features and call the `interrupt()` function from inside the existing handler:
 
 ```rust
 use cortex_m_rt::exception;

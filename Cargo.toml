@@ -14,4 +14,5 @@ cortex-m = "0.7"
 cortex-m-rt = "0.7"
 
 [features]
-no_handler = []
+default = ["irq_handler"]
+irq_handler = []
