@@ -16,3 +16,6 @@ cortex-m-rt = "0.7"
 [features]
 default = ["irq_handler"]
 irq_handler = []
+
+[lib]
+doctest = false
